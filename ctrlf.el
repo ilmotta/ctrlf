@@ -1094,11 +1094,15 @@ If already in a search, go to next candidate, or if no input then
 insert the previous search string. If in a non-literal search,
 change back to literal search if prefix ARG is provided. If in
 the minibuffer but not in a search already, run command
-`isearch-forward' instead."
+`isearch-forward' instead. If the buffer region is active, use it
+as the initial input."
   (interactive "P")
-  (if (and (window-minibuffer-p) (not ctrlf--active-p))
-      (isearch-forward)
-    (ctrlf-forward 'literal (null arg))))
+  (let ((content (when (use-region-p)
+                   (buffer-substring (region-beginning) (region-end)))))
+    (if (and (window-minibuffer-p) (not ctrlf--active-p))
+        (isearch-forward)
+      (deactivate-mark)
+      (ctrlf-forward 'literal (null arg) content))))
 
 ;;;###autoload
 (defun ctrlf-backward-literal (&optional arg)
